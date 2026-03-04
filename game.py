@@ -11,6 +11,9 @@ class Game:
         self.next_block = self.get_random_block()
         self.game_over = False
         self.score = 0
+        self.rotate_sound = pygame.mixer.Sound("Sounds/rotate.ogg")
+        self.clear_sound = pygame.mixer.Sound("Sounds/clear.ogg")
+
         pygame.mixer.music.load("sounds/music.ogg.ogg")
         pygame.mixer.music.play(-1)
 
@@ -54,8 +57,9 @@ class Game:
         self.current_block = self.next_block  # setting the next block as the current block
         self.next_block = self.get_random_block()  # getting a new random block for the next block
         rows_cleared = self.grid.clear_full_rows()  # clearing any full rows after locking the block in place
-        self.update_score(rows_cleared,
-                          0)  # updating the score based on the number of rows cleared and move down points
+        if rows_cleared > 0:
+            self.clear_sound.play()
+            self.update_score(rows_cleared,0)  # updating the score based on the number of rows cleared and move down points
         if self.block_fits() == False:  # checking if the new current block can fit in the grid after locking the previous block
             self.game_over = True  # setting the game over flag to true if the new block cannot fit, indicating that the game has ended
 
@@ -78,6 +82,8 @@ class Game:
         self.current_block.rotate()
         if self.block_inside() == False or self.block_fits() == False:
             self.current_block.undo_rotation()  # rotating back to the original position if the block is outside the grid
+        else:
+            self.rotate_sound.play()
 
     def block_inside(self):
         tiles = self.current_block.get_cell_positions()
